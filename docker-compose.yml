@@ -1,0 +1,42 @@
+# version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: webdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d webdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # redis:
+  #   image: redis:7.4.4
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+
+  # app:
+  #   build: .
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_USER: user
+  #     DB_PASSWORD: password
+  #     DB_NAME: webdb
+  #   links:
+  #     - postgres
+
+volumes:
+  postgres_data:
+  redis_data:
