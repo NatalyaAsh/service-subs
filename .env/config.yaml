@@ -10,6 +10,13 @@ postgresql:
   name: webdb
   user: user
   password: password
-  host: localhost
+  host: postgres
   port: 5432
   
+logs:
+  loglevel: -4
+
+# slog.LevelError = 8
+# slog.LevelWarn = 4
+# slog.LevelInfo = 0
+# slog.LevelDebug = -4

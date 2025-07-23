@@ -14,7 +14,8 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/app .
-# COPY --from=builder /app/any.sql .
+
+COPY .env/config.yaml /app/config.yaml
 
 RUN apk --no-cache add postgresql-client
 

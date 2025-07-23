@@ -14,7 +14,7 @@ func Start(cfg *config.Config) {
 
 	api.Init(mux, cfg)
 
-	slog.Info("Start server")
+	slog.Debug("Start server")
 	err := http.ListenAndServe(":"+cfg.HTTP.Port, mux)
 	if err != nil {
 		slog.Error(err.Error())

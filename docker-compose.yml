@@ -17,26 +17,21 @@ services:
       timeout: 5s
       retries: 5
 
-  # redis:
-  #   image: redis:7.4.4
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis_data:/data
-
-  # app:
-  #   build: .
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   environment:
-  #     DB_HOST: postgres
-  #     DB_USER: user
-  #     DB_PASSWORD: password
-  #     DB_NAME: webdb
-  #   links:
-  #     - postgres
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: webdb
+    ports:
+      - "8080:8080"
+      - "1323:1323"
+    links:
+      - postgres
 
 volumes:
   postgres_data:
-  redis_data:

@@ -1,0 +1,135 @@
+definitions:
+  models.Sub:
+    properties:
+      end_date:
+        type: string
+      endDateUpdate:
+        type: boolean
+      id:
+        type: integer
+      price:
+        type: integer
+      priceUpdate:
+        type: boolean
+      service_name:
+        type: string
+      serviceNameUpdate:
+        type: boolean
+      start_date:
+        type: string
+      startDateUpdate:
+        type: boolean
+      user_id:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API Server for Subs users
+  title: Service Subs
+  version: "1.0"
+paths:
+  /api/DeleteSub:
+    delete:
+      consumes:
+      - application/json
+      description: delete sub
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: DeleteSub
+      tags:
+      - Api Subs
+  /api/GetSumSubs:
+    get:
+      consumes:
+      - application/json
+      description: sum subs of user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: GetSumSubs
+      tags:
+      - Api Subs
+  /api/PostSub:
+    post:
+      consumes:
+      - application/json
+      description: post sub
+      parameters:
+      - description: sub info for insert
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Sub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: PostSub
+      tags:
+      - Api Subs
+  /api/PutSub:
+    put:
+      consumes:
+      - application/json
+      description: update sub
+      parameters:
+      - description: sub info for update
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Sub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: PutSub
+      tags:
+      - Api Subs
+  /api/Sub:
+    get:
+      consumes:
+      - application/json
+      description: get sub
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: GetSub
+      tags:
+      - Api Subs
+  /api/Subs:
+    get:
+      consumes:
+      - application/json
+      description: get subS
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: GetSubs
+      tags:
+      - Api Subs
+swagger: "2.0"
