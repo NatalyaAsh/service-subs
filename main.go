@@ -38,10 +38,17 @@ func main() {
 	go func() {
 		slog.Debug("Start swagger")
 		r := chi.NewRouter()
-		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:1323/swagger/doc.json")))
-		http.ListenAndServe(":1323", r)
+		//r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:1323/swagger/doc.json")))
+		r.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL("http://localhost:1323/swagger/doc.json"), // или относительный путь
+			httpSwagger.DeepLinking(true),                             // разрешить глубокие ссылки
+			httpSwagger.DocExpansion("list"),                          // 'list', 'full' или 'none'
+			httpSwagger.PersistAuthorization(true),                    // сохранять авторизацию при обновлении
+		))
+		if err := http.ListenAndServe(":1323", r); err != nil {
+			slog.Error("Swagger server failed", "error", err)
+		}
 	}()
 
 	server.Start(cfg)
-
 }

@@ -22,6 +22,8 @@
 
 5. Конфигурационные данные в .env/config.yaml.
 
-6. Swagger-документация по адресу `http://localhost:1323/swagger/doc.json`. Не успела изучить до конца, поэтому может не всегда корретно отображаться. Продолжу изучение swagger.
+6. Swagger-документация по адресу `http://localhost:1323/swagger/index.html`. 
 
-7. Запуск сервера через docker-compose.
+7. Запуск сервера через docker-compose. Команда для запуска: `sh docker_start.sh`.
+
+8. Применяется gracefull shutdown.

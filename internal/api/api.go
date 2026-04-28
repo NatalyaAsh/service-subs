@@ -38,9 +38,14 @@ func Init(mux *http.ServeMux, cfg *config.Config) {
 }
 
 func writeJson(w http.ResponseWriter, data any, statusCode int) {
-	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	msg, _ := json.Marshal(data)
+	w.WriteHeader(statusCode)
+	msg, err := json.Marshal(data)
+	if err != nil {
+		slog.Error("failed to marshal JSON", "error", err)
+		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+		return
+	}
 	io.Writer.Write(w, msg)
 }
 
@@ -70,15 +75,18 @@ func CheckDate(str string) (month int, year int, err error) {
 	return month, year, nil
 }
 
-// @Summary		PostSub
-// @Tags			Api Subs
-// @Description	post sub
-// @Accept json
-// @Produce json
-// @Param input body models.Sub true "sub info for insert"
-// @Success 200 {integer} integer 1
-// @Router			/api/PostSub [post]
+// @Summary      Создание новой подписки
+// @Description  Добавляет запись о новой подписке пользователя в базу данных
+// @Tags         subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        request body models.Sub true "Данные новой подписки (обязательно: user_id, service_name)"
+// @Success      201  {object}  models.ResponseId  "ID созданной подписки"
+// @Failure      400  {object}  models.ResponseErr "Ошибка валидации данных"
+// @Failure      500  {object}  models.ResponseErr "Внутренняя ошибка сервера"
+// @Router       /sub [post]
 func PostSub(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	slog.Debug("PostSub")
 	var buf bytes.Buffer
 	var sub models.Sub
@@ -134,16 +142,16 @@ func PostSub(w http.ResponseWriter, r *http.Request) {
 	}
 	sub.ID = int(id)
 	slog.Info("Добавили запись: ", "sub", sub)
-	writeJson(w, models.ResponseId{ID: id}, http.StatusOK)
+	writeJson(w, models.ResponseId{ID: id}, http.StatusCreated)
 }
 
-// @Summary		GetSubs
-// @Tags			Api Subs
-// @Description	get subS
-// @Accept json
-// @Produce json
-// @Success 200 {integer} integer 1
-// @Router			/api/Subs [get]
+// @Summary      Список всех подписок
+// @Description  Возвращает массив всех существующих подписок
+// @Tags         subscriptions
+// @Produce      json
+// @Success      200  {array}   models.Sub
+// @Failure      500  {object}  models.ResponseErr
+// @Router       /subs [get]
 func GetSubs(w http.ResponseWriter, r *http.Request) {
 	subs, err := pgsql.GetSubs()
 	if err != nil {
@@ -155,13 +163,15 @@ func GetSubs(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, subs, http.StatusOK)
 }
 
-// @Summary		GetSub
-// @Tags			Api Subs
-// @Description	get sub
-// @Accept json
-// @Produce json
-// @Success 200 {integer} integer 1
-// @Router			/api/Sub [get]
+// @Summary      Получение подписки по ID
+// @Description  Возвращает данные одной подписки
+// @Tags         subscriptions
+// @Produce      json
+// @Param        id query int true "ID подписки"
+// @Success      200  {object}  models.Sub
+// @Failure      400  {object}  models.ResponseErr "Не указан или невалидный ID"
+// @Failure      404  {object}  models.ResponseErr "Подписка не найдена"
+// @Router       /sub [get]
 func GetSub(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -191,15 +201,19 @@ func GetSub(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, sub, http.StatusOK)
 }
 
-// @Summary		PutSub
-// @Tags			Api Subs
-// @Description	update sub
-// @Accept json
-// @Produce json
-// @Param input body models.Sub true "sub info for update"
-// @Success 200 {integer} integer 1
-// @Router			/api/PutSub [put]
+// @Summary      Обновление подписки
+// @Description  Обновляет поля существующей подписки. Передавайте ТОЛЬКО те поля, которые нужно изменить.
+// @Tags         subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        id      query int       true  "ID подписки для обновления"
+// @Param        request body   models.Sub true  "Объект с полями для обновления"
+// @Success      200     "Успешно обновлено"
+// @Failure      400     {object} models.ResponseErr "Ошибка валидации"
+// @Failure      500     {object} models.ResponseErr
+// @Router       /sub [put]
 func PutSub(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	idRaw := r.URL.Query().Get("id")
 	if idRaw == "" {
 		slog.Error("не указан Id подписки")
@@ -252,16 +266,17 @@ func PutSub(w http.ResponseWriter, r *http.Request) {
 		writeJson(w, models.ResponseErr{Error: err.Error()}, http.StatusBadRequest)
 		return
 	}
-	writeJson(w, "", http.StatusOK)
+	writeJson(w, nil, http.StatusOK)
 }
 
-// @Summary		DeleteSub
-// @Tags			Api Subs
-// @Description	delete sub
-// @Accept json
-// @Produce json
-// @Success 200 {integer} integer 1
-// @Router			/api/DeleteSub [delete]
+// @Summary      Удаление подписки
+// @Description  Удаляет запись о подписке по ID
+// @Tags         subscriptions
+// @Param        id query int true "ID подписки для удаления"
+// @Success      200  "Успешно удалено"
+// @Failure      400  {object} models.ResponseErr "Не указан или невалидный ID"
+// @Failure      500  {object} models.ResponseErr
+// @Router       /sub [delete]
 func DeleteSub(w http.ResponseWriter, r *http.Request) {
 	idRaw := r.URL.Query().Get("id")
 	if idRaw == "" {
@@ -283,17 +298,20 @@ func DeleteSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slog.Info("Удалили подписку с", "id", id)
-	writeJson(w, "", http.StatusOK)
+	writeJson(w, nil, http.StatusOK)
 }
 
-// @Summary		GetSumSubs
-// @Tags			Api Subs
-// @Description	sum subs of user
-// @Accept json
-// @Produce json
-// @Success 200 {integer} integer 1
-// @Router			/api/GetSumSubs [get]
+// @Summary      Расчет суммы подписок
+// @Description  Считает общую стоимость подписок пользователя ЗА период. ВНИМАНИЕ: этот эндпоинт ожидает JSON-тело с фильтрами, хотя использует GET-метод.
+// @Tags         subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        request body   models.Sub true  "Фильтры: user_id (обяз.), service_name (опц.), start_date, end_date"
+// @Success      200  {object}  models.ResponseSum "Сумма подписок"
+// @Failure      400  {object}  models.ResponseErr
+// @Router       /sum [get]
 func GetSumSubs(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	var buf bytes.Buffer
 	var sub models.Sub
 
