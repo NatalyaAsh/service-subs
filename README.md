@@ -1,9 +1,10 @@
+```markdown
 # service-subs
 
 ![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)
 [![Swagger](https://img.shields.io/badge/Swagger-Documentation-brightgreen)](http://localhost:1323/swagger/index.html)
 
-Реализован REST-сервис для агрегации данных об онлайн-подписках пользователей.
+REST-сервис для агрегации данных об онлайн-подписках пользователей.
 
 ## 🚀 Функционал
 
@@ -46,54 +47,62 @@ sh docker_start.sh
 
 # Остановка
 sh docker_stop.sh
+```
+### Локальный запуск
+```bash
+# 1. Настройте конфигурационный файл
+# Отредактируйте .env/config.yaml
 
-Локальный запуск
-# 1. Скопируйте и настройте конфиг:  
-.env/config.yaml
 # 2. Создайте базу данных PostgreSQL
-# 3. Установите зависимости:    
-go mod download
-# 4. Сгенерируйте Swagger документацию:  
-swag init
-# 5. Запустите сервис:    
-go run main.go
 
-📚 Документация API
+# 3. Установите зависимости
+go mod download
+
+# 4. Сгенерируйте Swagger документацию
+swag init
+
+# 5. Запустите сервис
+go run main.go
+```
+
+## 📚 Документация API
 Swagger UI доступен по адресу: http://localhost:1323/swagger/index.html
 
-⚙️ Конфигурация
+## ⚙️ Конфигурация
 Конфигурационные файлы:
   .env/config.yaml - настройки сервера и логирования
-Пример config.yaml: 
-  app:
-    name: service-subs
-    version: "0.1.0"
 
-  http:
-    host: localhost
-    port: 8080
+Пример config.yaml:
+```yaml
+app:
+  name: service-subs
+  version: "0.1.0"
 
-  postgresql:
-    name: webdb
-    user: user
-    password: password
-    host: postgres
-    port: 5432
-      
-  logs:
-    loglevel: -4
-    # slog.LevelError = 8
-    # slog.LevelWarn = 4
-    # slog.LevelInfo = 0
-    # slog.LevelDebug = -4
+http:
+  host: localhost
+  port: 8080
 
-📊 Логирование
-  Код покрыт структурированными логами (slog)
-  Уровень логирования настраивается в конфигурационном файле
+postgresql:
+  name: webdb
+  user: user
+  password: password
+  host: postgres
+  port: 5432
+    
+logs:
+  loglevel: -4
+  # slog.LevelError = 8
+  # slog.LevelWarn = 4
+  # slog.LevelInfo = 0
+  # slog.LevelDebug = -4
+```
 
-🛑 Graceful Shutdown
-  Сервер поддерживает плавное завершение работы:
-  Не принимает новые запросы после получения сигнала остановки
-  Дожидается завершения текущих запросов (таймаут 30 секунд)
-  Корректно закрывает соединения с базой данных
+## 📊 Логирование
+Код покрыт структурированными логами (slog)
+Уровень логирования настраивается в конфигурационном файле
 
+## 🛑 Graceful Shutdown
+Сервер поддерживает плавное завершение работы:
+Не принимает новые запросы после получения сигнала остановки
+Дожидается завершения текущих запросов (таймаут 30 секунд)
+Корректно закрывает соединения с базой данных
