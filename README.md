@@ -1,4 +1,3 @@
-```markdown
 # service-subs
 
 ![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)
